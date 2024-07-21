@@ -21,6 +21,35 @@ public class Multiplayer {
     }
 
     public Multiplayer(Field field,int port){
-        
+
     }
+    public void startServer(){}
+    public void joinGame(String otherServer){}
+    public void startGame(){}
+    public void disconnected(){}
+
+    class Server implements Runnable {
+
+        @Override
+        public void run() {
+
+        }
+        public void stopListening(){
+
+        }
+    }
+    class Client implements Runnable {
+     String gameHost;
+     boolean startNewGame;
+
+        public Client(String host) {}
+
+
+        @Override
+        public void run() {
+
+        }
+
+    }
+
 }
