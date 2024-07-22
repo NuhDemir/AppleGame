@@ -3,7 +3,6 @@ import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
 
@@ -16,7 +15,8 @@ public class Field extends JComponent implements ActionListener {
     public static final int PHYSICIST_SIZE_IN_PIXELS = 75;
     public static final int MAX_TREES = 12;
 
-    Color fieldColor = Color.GRAY;
+    Color startColor = new Color(0x003664); // #003664
+    Color endColor = new Color(0xEFF4F7);   // #EFF4F7
     Random random = new Random();
 
     Physicist physicist;
@@ -29,11 +29,41 @@ public class Field extends JComponent implements ActionListener {
     boolean animating = false;
     Timer animationTimer;
 
+    JLabel winLabel;
+    JButton startButton;
+
+    public Field() {
+        setLayout(null);
+        winLabel = new JLabel("You Won!", SwingConstants.CENTER);
+        winLabel.setFont(new Font("Poppins", Font.BOLD, 36));
+        winLabel.setForeground(new Color(0x8E9A9A)); // #8E9A9A
+        winLabel.setBounds(0, 0, AppleToss.FIELD_WIDTH, AppleToss.FIELD_HEIGHT);
+        winLabel.setVisible(false);
+        add(winLabel);
+
+        startButton = new JButton("Start Game");
+        startButton.setFont(new Font("Poppins", Font.BOLD, 18));
+        startButton.setBackground(new Color(0x69716F)); // #69716F
+        startButton.setForeground(Color.WHITE);
+        startButton.setBounds(AppleToss.FIELD_WIDTH / 2 - 100, AppleToss.FIELD_HEIGHT / 2 - 25, 200, 50);
+        startButton.setFocusPainted(false);
+        startButton.setBorderPainted(false);
+        startButton.addActionListener(e -> setupNewGame());
+        add(startButton);
+
+        // Adding a translucent background to the start button
+        startButton.setOpaque(true);
+        startButton.setContentAreaFilled(true);
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.setColor(fieldColor);
-        g.fillRect(0, 0, getWidth(), getHeight());
+        Graphics2D g2d = (Graphics2D) g;
+        GradientPaint gradient = new GradientPaint(0, 0, startColor, getWidth(), getHeight(), endColor);
+        g2d.setPaint(gradient);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+
         if (physicist != null) {
             physicist.draw(g);
         }
@@ -138,6 +168,13 @@ public class Field extends JComponent implements ActionListener {
         myScore += 10;
         trees.remove(tree);
         setScore(1, String.valueOf(myScore));
+        checkForWin();
+    }
+
+    void checkForWin() {
+        if (trees.size() == 0) {
+            winLabel.setVisible(true);
+        }
     }
 
     void startAnimation() {
@@ -207,6 +244,8 @@ public class Field extends JComponent implements ActionListener {
     }
 
     public void setupNewGame() {
+        winLabel.setVisible(false);
+        startButton.setVisible(false);  // Hide start button when game starts
         // Clear out any old trees
         trees.clear();
 
